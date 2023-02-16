@@ -4,7 +4,7 @@ const conn = new Sequelize(process.env.DATABASE_URL || 'postgres://localhost/acm
 
 
 //creating tables
-const People = conn.define('people', {
+const Person = conn.define('person', {
     name: {
         type: Sequelize.STRING
     }
@@ -27,7 +27,7 @@ const Souvenir = conn.define( 'souvenir', {
 });
 
 // joining tables
-Souvenir.belongsTo(People);
+Souvenir.belongsTo(Person);
 Souvenir.belongsTo(Place);
 Souvenir.belongsTo(Thing);
 
@@ -38,9 +38,9 @@ const syncAndSeed = async() => {
     await conn.sync({force:true}); // must include this
     
     const [marie, vicky, des] = await Promise.all([
-        People.create({ name: 'marie'}), 
-        People.create({ name: 'vicky'}), 
-        People.create({ name: 'des'})
+        Person.create({ name: 'marie'}), 
+        Person.create({ name: 'vicky'}), 
+        Person.create({ name: 'des'})
     ]);
     
     const [paris, fiji, nebraska] = await Promise.all([
@@ -65,7 +65,7 @@ const syncAndSeed = async() => {
 //export to server
 module.exports = {
     conn,
-    People,
+    Person,
     Place,
     Thing,
     Souvenir,

@@ -1,7 +1,7 @@
 //server & requirements
 const express = require('express');
 const app = express();
-const { conn, People, Place, Thing, Souvenir, syncAndSeed } = require('./db');
+const { conn, Person, Place, Thing, Souvenir, syncAndSeed } = require('./db');
 
 // middleware
 app.use(express.urlencoded({ extended: false }));
@@ -34,9 +34,9 @@ app.delete('/', async(req, res, next) => {
 app.get('/', async(req, res, next) => {
     try{
        const souvenirs = await Souvenir.findAll({
-            include: [ People, Place, Thing ]
+            include: [ Person, Place, Thing ]
         }); 
-        const peoples = await People.findAll();
+        const people = await Person.findAll();
         const places = await Place.findAll();
         const things = await Thing.findAll();
 
@@ -50,7 +50,7 @@ app.get('/', async(req, res, next) => {
                  <h2>People</h2>
                     <ul>
                      ${
-                       peoples.map( person => {
+                       people.map( person => {
                            return `
                                <li>
                                   ${ person.name } 
@@ -98,7 +98,7 @@ app.get('/', async(req, res, next) => {
                    <form method='POST'>
                    <select name='personId'>
                      ${
-                        peoples.map( person => {
+                        people.map( person => {
                           return `
                             <option value=${person.id}>${ person.name }</option>
                            `;
@@ -146,8 +146,10 @@ app.use((err, req, res, next)=> {
 
 // connect to port
 const port = process.env.PORT || 3000;
+
 app.listen(port, async()=> {
   try {
+    //await db.conn.sync({ force: true});
     await syncAndSeed();
     console.log(`listening on port ${port}`);
   }
