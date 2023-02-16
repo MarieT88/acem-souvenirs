@@ -6,7 +6,12 @@ const conn = new Sequelize(process.env.DATABASE_URL || 'postgres://localhost/acm
 //creating tables
 const Person = conn.define('person', {
     name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+        validate: {
+            notEmpty: true  //squelize feature that doesnt allow an empty string
+        }
     }
 });
 
@@ -30,18 +35,21 @@ const Souvenir = conn.define( 'souvenir', {
 Souvenir.belongsTo(Person);
 Souvenir.belongsTo(Place);
 Souvenir.belongsTo(Thing);
+// Person.hasMany(Souvenir); will allow you to grab data from reverse
 
 
 // seeding data
 const syncAndSeed = async() => {
     
-    await conn.sync({force:true}); // must include this
+    await conn.sync({force:true}); // deletes and reseeds tables
     
     const [marie, vicky, des] = await Promise.all([
         Person.create({ name: 'marie'}), 
         Person.create({ name: 'vicky'}), 
         Person.create({ name: 'des'})
     ]);
+    
+    //how to add just one: Person.create({name: 'vinny'}); 
     
     const [paris, fiji, nebraska] = await Promise.all([
         Place.create({ name: 'paris'}), 
@@ -55,7 +63,7 @@ const syncAndSeed = async() => {
         Thing.create({ name: 'boyfriend'})
     ]);
     
-    const [] = await Promise.all([
+    await Promise.all([
         Souvenir.create({  personId: marie.id, placeId: paris.id, thingId: mug.id }),
         Souvenir.create({  personId: vicky.id, placeId: fiji.id, thingId: magnet.id }),
         Souvenir.create({  personId: des.id, placeId: nebraska.id, thingId: boyfriend.id })
